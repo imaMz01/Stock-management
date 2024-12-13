@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Low Stock Notification</title>
+    <style>
+        .container {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 th:text="'Dear ' + ${managerName} + ','"></h2>
+    <p>
+        We hope this message finds you well. This is a notification to inform you that the product <strong th:text="${productName}"></strong> in your stock is running low. Currently, only <strong th:text="${quantity}"></strong> units remain in stock.
+    </p>
+    <p>
+        We recommend that you place an order soon to restock the product before it runs out.
+    </p>
+    <p>
+        Thank you for your attention to this matter.
+    </p>
+    <p class="footer">
+        Best regards,<br>
+    </p>
+</div>
+</body>
+</html>

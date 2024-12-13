@@ -1,0 +1,28 @@
+spring:
+  application:
+    name:
+      user-service
+  datasource:
+    password: 061201
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/inventoryDB
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+token:
+  signing:
+    key: koa87doom02hoax08valid02udatta08320dalliance80we8redwood0232dd87
+    private-key: user-service\src\main\resources\key\privateKey.pem
+    public-key: Key/publicKey.pem
+  expiration:
+    access-token: 1200000
+    refresh-token: 3600000
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+server:
+  port: 0

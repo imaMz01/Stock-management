@@ -1,0 +1,32 @@
+spring:
+  application:
+    name:
+      product-service
+  datasource:
+    password: 061201
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/inventoryDB
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+    stream:
+      bindings:
+        stockVerificationEmail-in-0:
+          destination: stockVerificationEmail-topic
+      kafka:
+        binder:
+          brokers: localhost:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+server:
+  port: 0
