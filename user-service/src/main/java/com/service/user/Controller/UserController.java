@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody SignInRequest signInRequest){
+    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody SignInRequest signInRequest) throws Exception {
         return new ResponseEntity<>(userService.signIn(signInRequest),HttpStatus.OK);
     }
 

@@ -11,6 +11,6 @@ public interface UserService {
     UserResponse update(UserRequest userRequest);
     UserResponse userById(String id);
     String delete(String id);
-    JwtAuthenticationResponse signIn(SignInRequest request);
+    JwtAuthenticationResponse signIn(SignInRequest request) throws Exception;
     UserResponse getCurrentUser();
 }

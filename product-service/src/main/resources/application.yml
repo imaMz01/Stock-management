@@ -18,11 +18,18 @@ spring:
         enabled: true
     stream:
       bindings:
-        stockVerificationEmail-in-0:
+        stockVerificationEmail-out-0:
           destination: stockVerificationEmail-topic
+        productsRequestEmail-out-0:
+          destination: productsRequestEmail-topic
+        productsRequestDecisionEmail-out-0:
+          destination: productsRequestDecisionEmail-topic
       kafka:
         binder:
           brokers: localhost:9092
+token:
+  signing:
+    public-key: Key/publicKey.pem
 
 eureka:
   client:

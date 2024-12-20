@@ -4,7 +4,7 @@ import com.service.product.Dtos.ProductDto;
 import com.service.product.Entities.Product;
 import com.service.product.Mappers.ProductMapper;
 import com.service.product.Repositories.ProductRepository;
-import com.service.product.exception.ProductNotFundException;
+import com.service.product.exceptions.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,12 @@ public class ProductServiceImp implements ProductService{
 
     public Product getById(String id){
         return productRepository.findById(id).orElseThrow(()->
-                new ProductNotFundException(id));
+                new ProductNotFoundException("sku code "+id));
+    }
+
+    @Override
+    public Product getByName(String name) {
+        return productRepository.findByName(name).orElseThrow(()-> new ProductNotFoundException("with name "+name));
     }
 
     @Override

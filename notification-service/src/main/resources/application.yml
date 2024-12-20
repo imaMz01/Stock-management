@@ -6,6 +6,12 @@ spring:
       bindings:
         stockVerificationEmail-in-0:
           destination: stockVerificationEmail-topic
+        productsRequestEmail-in-0:
+          destination: productsRequestEmail-topic
+        productsRequestDecisionEmail-in-0:
+          destination: productsRequestDecisionEmail-topic
+    function:
+      definition: stockVerificationEmail;productsRequestEmail;productsRequestDecisionEmail
       kafka:
         binder:
           brokers: localhost:9092

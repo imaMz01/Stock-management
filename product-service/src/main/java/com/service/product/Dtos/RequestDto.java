@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationDto {
-
-    private String email;
+@Getter
+@Setter
+public class RequestDto {
+    private String idProductsRequest;
+    private String to;
+    private String from;
     private String productName;
     private long quantity;
 }

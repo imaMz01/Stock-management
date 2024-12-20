@@ -12,6 +12,7 @@ public interface ProductService {
     ProductDto update(ProductDto productDto);
     String delete(String id);
     ProductDto productById(String id);
-    public Product getById(String id);
+    Product getById(String id);
+    Product getByName(String name);
     boolean checkProduct(String id);
 }

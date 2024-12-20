@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public JwtAuthenticationResponse signIn(SignInRequest request) {
+    public JwtAuthenticationResponse signIn(SignInRequest request) throws Exception {
 
         // Find user by email
         User user = userRepository.findByEmailIgnoreCase(request.getEmail())

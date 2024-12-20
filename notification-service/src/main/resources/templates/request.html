@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Request for Product Shipment</title>
+  <style>
+    .container {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+    }
+    .footer {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #555;
+    }
+    .button {
+        padding: 10px 20px;
+        margin: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        color : white !important;
+    }
+    .accept {
+        background-color: #4CAF50; /* Green */
+        color: white;
+    }
+    .reject {
+        background-color: #f44336; /* Red */
+        color: white;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Dear Manager, </h2>
+  <p>
+    We hope this message finds you well. We are reaching out to request that you provide <strong th:text="${quantity}"></strong> units of the product <strong th:text="${productName}"></strong> for our upcoming needs.
+  </p>
+  <p>
+    This product is essential to meet our current demand, and your prompt action in fulfilling this request would be highly appreciated.
+  </p>
+  <p>
+    Kindly confirm if you are able to supply this quantity.
+  </p>
+  <p>
+    We would greatly appreciate your confirmation on this matter.
+  </p>
+
+  <form th:action="@{http://localhost:8081/api/v2/reject/}" method="get">
+    <input type="hidden" name="id" th:value="${id}" />
+    <input type="hidden" name="from" th:value="${from}" />
+    <button type="submit" class="button accept">Accept</button>
+    <button type="submit" class="button reject">Reject</button>
+  </form>
+  <!-- Action buttons -->
+<!--  <a th:href="accept-link-here" class="button accept">Accept</a>-->
+<!--  <a th:href="'http://localhost:8081/api/v2/reject/' + ${id}" class="button reject">Reject</a>-->
+
+  <p class="footer">
+    Best regards,<br>
+  </p>
+</div>
+</body>
+</html>

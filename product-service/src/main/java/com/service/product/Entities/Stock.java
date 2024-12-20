@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Entity
-@ToString
 public class Stock extends AbstractEntity {
 
 
@@ -23,4 +22,5 @@ public class Stock extends AbstractEntity {
     @OneToMany(mappedBy = "stock",cascade = CascadeType.MERGE)
     private List<StockProduct> stockProducts =new ArrayList<>();
     private String idManager;
+    private String emailManager;
 }

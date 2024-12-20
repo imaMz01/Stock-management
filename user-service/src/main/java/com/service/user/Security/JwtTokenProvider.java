@@ -1,30 +1,23 @@
 package com.service.user.Security;
 
 import com.service.user.Entity.User;
+import com.service.user.Util.KeyLoader;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.Key;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${token.signing.key}")
@@ -42,26 +35,18 @@ public class JwtTokenProvider {
 
     @Value("${token.expiration.refresh-token}")
     private long refreshExpiration;
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
-
-    @PostConstruct
-    public void init() throws Exception {
-        this.privateKey = loadPrivateKey(privateKeyPath);
-        this.publicKey = loadPublicKey(publicKeyPath);
-    }
-
-    private String createToken(Map<String, Object> claims, String username, long expirationMillis) {
+    private final KeyLoader keyLoader;
+    private String createToken(Map<String, Object> claims, String username, long expirationMillis) throws Exception {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
-                .signWith(privateKey, SignatureAlgorithm.RS256)
+                .signWith(keyLoader.loadPrivateKey(privateKeyPath), SignatureAlgorithm.RS256)
                 .compact();
     }
 
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(User user) throws Exception {
         Map<String, Object> claims = new HashMap<>();
 //        Set<String> roles = user.getRoles().stream()
 //                .map(Role::getRole)
@@ -70,7 +55,7 @@ public class JwtTokenProvider {
         return createToken(claims, user.getEmail(), jwtExpiration);
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(User user) throws Exception {
         Map<String, Object> claims = new HashMap<>();
 //        Set<String> roles = user.getRoles().stream()
 //                .map(Role::getRole)
@@ -84,34 +69,34 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token) {
+    public String extractUsername(String token) throws Exception {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws Exception {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) throws Exception {
         return Jwts
                 .parserBuilder()
-                .setSigningKey(publicKey)
+                .setSigningKey(keyLoader.loadPublicKey(publicKeyPath))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    public Boolean isTokenValid(String token, UserDetails userDetails) {
+    public Boolean isTokenValid(String token, UserDetails userDetails) throws Exception {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) throws Exception {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    private Date extractExpiration(String token) throws Exception {
         return extractClaim(token, Claims::getExpiration);
     }
 
@@ -130,30 +115,5 @@ public class JwtTokenProvider {
                 .setIssuedAt(new Date())
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    private PrivateKey loadPrivateKey(String path) throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-        key = key.replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\n", "")
-                .trim();
-        byte[] decodedKey = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePrivate(keySpec);
-    }
-
-
-    private PublicKey loadPublicKey(String path) throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-        key = key.replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "")
-                .replaceAll("\n", "")
-                .trim();
-        byte[] decodedKey = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePublic(keySpec);
     }
 }

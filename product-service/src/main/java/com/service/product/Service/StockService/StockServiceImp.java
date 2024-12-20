@@ -10,8 +10,7 @@ import com.service.product.Mappers.StockMapper;
 import com.service.product.Mappers.StockProductMapper;
 import com.service.product.Repositories.StockRepository;
 import com.service.product.Service.ProductService.ProductService;
-import com.service.product.exception.ProductNotFundException;
-import com.service.product.exception.StockNotFundException;
+import com.service.product.exceptions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -33,24 +32,25 @@ public class StockServiceImp implements StockService{
     private final UserFeign userFeign;
     private final StreamBridge streamBridge;
 
-
     @Override
     @Transactional
     public StockDto add(StockDto stockDto) {
-        Stock stock = mapper.toEntity(stockDto);
         UserResponse managerDto = userFeign.getCurrentUser().getBody();
+        if(managerDto == null)
+            return null;
+        if (stockRepository.findByIdManager(managerDto.getId()).isPresent())
+            throw new StockAlreadyExist();
+        Stock stock = mapper.toEntity(stockDto);
         stock.setId(UUID.randomUUID().toString());
         stock.setIdManager(managerDto.getId());
+        stock.setEmailManager(managerDto.getEmail());
         stock.setStockProducts(stockDto.getStockProducts()
                 .stream()
                 .map(
-                    element->{
-                        return new StockProduct(new StockProductId(
-                                productService.getById(element.getSku()).getId(),stock.getId()),
-                                element.getQuantity(),stock,productService.getById(element.getSku()));
-                    })
+                    element-> new StockProduct(new StockProductId(
+                            productService.getById(element.getSku()).getId(),stock.getId()),
+                            element.getQuantity(),stock,productService.getById(element.getSku())))
                 .toList());
-        System.out.println("stock ------> "+stock.toString());
         Stock saved = stockRepository.save(stock);
         StockDto stockDto1 = getStockDto(mapper.toDto(saved), saved);
         stockDto1.setManager(managerDto);
@@ -60,17 +60,15 @@ public class StockServiceImp implements StockService{
     private static StockDto getStockDto(StockDto stockDto1, Stock saved) {
         stockDto1.setStockProducts(saved.getStockProducts()
                 .stream()
-                .map(stockProduct -> {
-                    return new StockProductDto(stockProduct.getQuantity(),
-                            stockProduct.getProduct().getId());
-                    })
+                .map(stockProduct -> new StockProductDto(stockProduct.getQuantity(),
+                        stockProduct.getProduct().getId()))
                 .toList());
         return stockDto1;
     }
 
     public Stock getById(String id){
         return stockRepository.findById(id).orElseThrow(()->
-                new StockNotFundException(id));
+                new StockNotFoundException("id "+id));
     }
     @Override
     public StockDto update(StockDto stockDto) {
@@ -91,6 +89,11 @@ public class StockServiceImp implements StockService{
     }
 
     @Override
+    public Stock stockByIdManager(String id) {
+        return stockRepository.findByIdManager(id).orElseThrow(()-> new StockNotFoundException("id manager "+id));
+    }
+
+    @Override
     public List<StockDto> stocks() {
         return stockRepository.findAll()
                 .stream()
@@ -105,14 +108,13 @@ public class StockServiceImp implements StockService{
     @Override
     public List<ProductStocksDto> productStocks(String sku) {
 
-        if(!productService.checkProduct(sku)) throw new ProductNotFundException(sku);
+        if(!productService.checkProduct(sku)) throw new ProductNotFoundException(sku);
         return stockRepository.findAll().stream()
-                .map(stock -> {return stock.getStockProducts().stream()
+                .map(stock -> stock.getStockProducts().stream()
                                     .filter(stockProduct -> stockProduct.getId().getIdProduct().equals(sku))
                                     .findFirst()
                                     .map(stockProduct -> new ProductStocksDto(stock.getStoreName(),stockProduct.getQuantity()))
-                                    .orElse(null);
-                        })
+                                    .orElse(null))
                 .filter(Objects::nonNull)
                 .toList();
     }
@@ -142,26 +144,22 @@ public class StockServiceImp implements StockService{
     }
 
     @Override
-    @Scheduled(fixedRate = 6000)
+    @Scheduled(fixedRate = 43200000)
     @Transactional
     public void verifyStockAndSendNotification() {
         stockRepository.findAll().forEach(
-                stock -> {
-                    stock.getStockProducts().stream()
-                            .filter(stockProduct -> stockProduct.getQuantity()<=10)
-                            .forEach(stockProduct -> {
-                                        UserResponse manager = userFeign.userById(stock.getIdManager()).getBody();
-                                        if(manager != null){
-                                            streamBridge.send("stockVerificationEmail-topic",
-                                                    new NotificationDto(
-                                                            manager.getLastName(), manager.getEmail(),
-                                                            stockProduct.getProduct().getName(), stockProduct.getQuantity()
-                                                    ));
-                                            log.info("send email {}",manager.getEmail());
-                                        }
-                                    }
-                    );
-                }
+                stock -> stock.getStockProducts().stream()
+                        .filter(stockProduct -> stockProduct.getQuantity()<=10)
+                        .forEach(stockProduct -> {
+                                        streamBridge.send("stockVerificationEmail-topic",
+                                                new NotificationDto(
+                                                        stock.getEmailManager(),
+                                                        stockProduct.getProduct().getName(),
+                                                        stockProduct.getQuantity()
+                                                ));
+                                        log.info("send email {}",stock.getEmailManager());
+                                }
+                )
         );
     }
 

@@ -1,4 +1,4 @@
-package com.service.product.exception;
+package com.service.product.exceptions;
 
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
@@ -14,8 +14,28 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(StockAlreadyExist.class)
+    public ResponseEntity<String> handleStockAlreadyExist(StockAlreadyExist ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ProductsRequestNotFoundException.class)
+    public ResponseEntity<String> handleProductsRequestNotFound(ProductsRequestNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(StockInsufficientException.class)
+    public ResponseEntity<String> handleStockInsufficient(StockInsufficientException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(StockSufficientException.class)
+    public ResponseEntity<String> handleStockSufficient(StockSufficientException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(FailedToFindService.class)
-    public ResponseEntity<String> handleSFailedToFindService(FailedToFindService ex) {
+    public ResponseEntity<String> handleFailedToFindService(FailedToFindService ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
@@ -26,13 +46,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorMessage, status);
     }
 
-    @ExceptionHandler(ProductNotFundException.class)
-    public ResponseEntity<String> handleProductNotFound(ProductNotFundException ex) {
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<String> handleProductNotFound(ProductNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(StockNotFundException.class)
-    public ResponseEntity<String> handleStockNotFund(StockNotFundException ex) {
+    @ExceptionHandler(StockNotFoundException.class)
+    public ResponseEntity<String> handleStockNotFund(StockNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 

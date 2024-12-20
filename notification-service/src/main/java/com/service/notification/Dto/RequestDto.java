@@ -1,17 +1,19 @@
-package com.service.product.Dtos;
+package com.service.notification.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationDto {
+@Getter
+@Setter
+public class RequestDto {
 
-    private String email;
+    private String idProductsRequest;
+    private String to;
+    private String from;
     private String productName;
     private long quantity;
 }

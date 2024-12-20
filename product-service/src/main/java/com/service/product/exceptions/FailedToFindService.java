@@ -1,4 +1,4 @@
-package com.service.product.exception;
+package com.service.product.exceptions;
 
 public class FailedToFindService extends RuntimeException {
     public FailedToFindService() {

@@ -3,6 +3,7 @@ package com.service.product.Controllers;
 import com.service.product.Dtos.ProductStocksDto;
 import com.service.product.Dtos.StockDto;
 import com.service.product.Dtos.StockProductDto;
+import com.service.product.Service.RequestHelper.RequestHelperService;
 import com.service.product.Service.StockService.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import java.util.List;
 public class StockController {
 
     private final StockService stockService;
+    private final RequestHelperService requestHelperService;
 
     @GetMapping
     public ResponseEntity<List<StockDto>> all(){
@@ -46,6 +48,13 @@ public class StockController {
     @PostMapping("/addProductToStock/{id}")
     public ResponseEntity<StockDto> addProductToStock(@PathVariable String id, @RequestBody StockProductDto stockProductDto){
         return new ResponseEntity<>(stockService.addProductToStock(id,stockProductDto),HttpStatus.OK);
+    }
+
+    @GetMapping("/sendProductsRequest/{idProduct}/{idStock}/{quantity}")
+    public ResponseEntity<String> sendProductsRequest(@PathVariable String idProduct,
+                                                      @PathVariable String idStock,
+                                                      @PathVariable long quantity){
+        return new ResponseEntity<>(requestHelperService.sendProductRequest(idProduct,idStock,quantity),HttpStatus.OK);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.service.product.FeignClient;
 
 import com.service.product.Dtos.UserResponse;
-import com.service.product.exception.FailedToFindService;
+import com.service.product.exceptions.FailedToFindService;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;

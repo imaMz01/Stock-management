@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Request ' + ${status}"></title>
+    <style>
+        .container {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            color : white !important;
+        }
+        .accept {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+        .reject {
+            background-color: #f44336; /* Red */
+            color: white;
+        }
+        .approved {
+            color: #4caf50; /* Vert pour l'approbation */
+            font-weight: bold;
+        }
+
+        .rejected {
+            color: #f44336; /* Rouge pour le rejet */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Dear Manager, </h2>
+    <p>
+        <span th:if="${status == 'APPROVED'}" class="approved">
+            We are pleased to inform you that your request has been successfully <strong>approved</strong>.
+        </span>
+        <span th:if="${status == 'REJECTED'}" class="rejected">
+            We regret to inform you that your request has <strong>not been approved</strong> at this time.
+        </span><br>
+    </p>
+    <p class="footer">
+        Best regards,<br>
+    </p>
+</div>
+</body>
+</html>
